@@ -11,7 +11,7 @@ import java.time.Instant;
 @Table(name = "users")
 public class User {
 
-    protected User() {
+    public User() {
     }
 
     @Id

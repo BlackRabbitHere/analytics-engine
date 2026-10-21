@@ -13,11 +13,13 @@ import java.time.Instant;
 @Table(name = "orders")
 @Getter
 public class Order {
+    private static final BigDecimal MAX_ALLOWED = new BigDecimal("9999999999.99");
+    private static final int MAX_SCALE = 2;
 
     public Order() {
     }
 
-    public Order(User user, Lead lead,BigDecimal amount){
+    public Order(User user, Lead lead, BigDecimal amount){
         if(user==null){
             throw new IllegalArgumentException("User is required");
         }
@@ -26,12 +28,24 @@ public class Order {
             throw new IllegalArgumentException("Lead is required");
         }
 
+        if(!lead.getUser().equals(user)){
+            throw new IllegalArgumentException("Lead is not correctly associated to the user");
+        }
+
         if(amount==null){
             throw new IllegalArgumentException("Amount is required");
         }
 
         if(amount.compareTo(BigDecimal.ZERO)<=0){
             throw new IllegalArgumentException("Amount must be greater than zero");
+        }
+
+        if(amount.compareTo(MAX_ALLOWED)>0){
+            throw new IllegalArgumentException("Amount is too large");
+        }
+
+        if(amount.stripTrailingZeros().scale()>MAX_SCALE){
+            throw new IllegalArgumentException("Amount should not exceed "+MAX_SCALE+" decimal places");
         }
 
         this.user=user;
