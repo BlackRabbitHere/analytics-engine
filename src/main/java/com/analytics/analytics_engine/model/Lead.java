@@ -13,6 +13,27 @@ import java.time.Instant;
 @Entity
 @Table(name = "leads")
 public class Lead {
+    public Lead() {
+    }
+
+    public Lead(User user,String source){
+        if(user==null){
+            throw new IllegalArgumentException("User is required");
+
+        }
+
+        if(source==null || source.isBlank()){
+            throw new IllegalArgumentException("source is required");
+        }
+
+        if(source.length()>100){
+            throw new IllegalArgumentException("Source should not exceed 100 characters");
+        }
+
+        this.user=user;
+        this.source=source;
+    }
+
 
     public enum Status {
         NEW,
@@ -23,12 +44,12 @@ public class Lead {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Setter
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Setter
+
     @Column(name = "source", nullable = false, length = 100)
     private String source;
 
@@ -45,8 +66,6 @@ public class Lead {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    public Lead() {
-    }
 
-    // Generate getters and setters.
+
 }

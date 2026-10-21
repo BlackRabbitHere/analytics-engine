@@ -14,27 +14,53 @@ import java.time.Instant;
 @Getter
 public class Order {
 
+    public Order() {
+    }
+
+    public Order(User user, Lead lead,BigDecimal amount){
+        if(user==null){
+            throw new IllegalArgumentException("User is required");
+        }
+
+        if(lead==null){
+            throw new IllegalArgumentException("Lead is required");
+        }
+
+        if(amount==null){
+            throw new IllegalArgumentException("Amount is required");
+        }
+
+        if(amount.compareTo(BigDecimal.ZERO)<=0){
+            throw new IllegalArgumentException("Amount must be greater than zero");
+        }
+
+        this.user=user;
+        this.lead=lead;
+        this.amount=amount;
+    }
+
     public enum Status {
         PENDING,
         PAID,
         REFUNDED
     }
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Setter
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Setter
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "lead_id", nullable = false)
     private Lead lead;
 
-    @Setter
+
     @Column(name = "amount", nullable = false, precision = 12, scale = 2)
     private BigDecimal amount;
 
@@ -59,8 +85,6 @@ public class Order {
     @Column(name = "refunded_at")
     private Instant refundedAt;
 
-    public Order() {
-    }
 
-    // Generate getters and setters.
+
 }

@@ -13,6 +13,30 @@ import java.time.Instant;
 @Getter
 public class Payment {
 
+    public Payment() {
+    }
+
+    public Payment(Order order,String providerReference,BigDecimal amount){
+        if(order==null){
+            throw new IllegalArgumentException("Order is Required");
+        }
+
+        if(providerReference==null || providerReference.isBlank()){
+            throw new IllegalArgumentException("Provider reference is Required");
+        }
+
+        if(amount==null){
+            throw new IllegalArgumentException("Amount is Required");
+        }
+        if(amount.compareTo(BigDecimal.ZERO)<=0){
+            throw new IllegalArgumentException("Amount must be greater than 0");
+        }
+
+        this.order=order;
+        this.providerReference=providerReference;
+        this.amount=amount;
+    }
+
     public enum Status {
         SUCCESS,
         REFUNDED
@@ -22,6 +46,7 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
         name = "order_id",
@@ -29,8 +54,8 @@ public class Payment {
         unique = true,
         updatable = false
     )
-    @Setter
     private Order order;
+
 
     @Column(
         name = "provider_reference",
@@ -48,25 +73,19 @@ public class Payment {
         precision = 12,
         scale = 2
     )
-    @Setter
     private BigDecimal amount;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
-    @Setter
     private Status status = Status.SUCCESS;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    @Setter
     private Instant createdAt;
 
     @Column(name = "refunded_at")
-    @Setter
     private Instant refundedAt;
 
-    public Payment() {
-    }
 
-    // Generate getters and setters.
 }
