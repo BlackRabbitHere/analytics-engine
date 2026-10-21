@@ -2,12 +2,12 @@ package com.analytics.analytics_engine.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Objects;
 
 @Entity
 @Table(name = "orders")
@@ -28,8 +28,9 @@ public class Order {
             throw new IllegalArgumentException("Lead is required");
         }
 
-        if(!lead.getUser().equals(user)){
-            throw new IllegalArgumentException("Lead is not correctly associated to the user");
+        User leadUser=lead.getUser();
+        if(leadUser==null || user.getId()==null || !user.getId().equals(leadUser.getId())){
+            throw new IllegalArgumentException("Lead does not belong to user");
         }
 
         if(amount==null){
@@ -78,7 +79,6 @@ public class Order {
     @Column(name = "amount", nullable = false, precision = 12, scale = 2)
     private BigDecimal amount;
 
-    @Setter
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     private Status status = Status.PENDING;
@@ -91,14 +91,49 @@ public class Order {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    @Setter
+
     @Column(name = "paid_at")
     private Instant paidAt;
 
-    @Setter
+
     @Column(name = "refunded_at")
     private Instant refundedAt;
 
+
+    public void markPaid(Instant paymentTime){
+        Objects.requireNonNull(paymentTime,"Payment time is required");
+
+//        Preserve original timestamp
+        if(status==Status.PAID){
+            return;
+        }
+
+        if(status!=Status.PENDING){
+            throw new IllegalStateException("Only a pending order can be marked as paid");
+        }
+
+
+        this.status=Status.PAID;
+        this.paidAt=paymentTime;
+    }
+
+    public void refund(Instant refundedTime){
+        Objects.requireNonNull(refundedTime,"Refund time is required");
+
+//        Preserve the earlier refund timestamp
+        if(status==Status.REFUNDED){
+            return;
+        }
+
+        if(status!=Status.PAID){
+            throw new IllegalStateException("Only a paid order can be refunded");
+
+        }
+
+        this.status=Status.REFUNDED;
+        this.refundedAt=refundedTime;
+
+    }
 
 
 }
