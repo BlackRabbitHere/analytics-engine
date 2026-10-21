@@ -5,18 +5,27 @@ import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
+import java.util.Objects;
 
 @Entity
 @Getter
 @Table(name = "users")
 public class User {
 
-    public User() {
+    protected User() {
+    }
+
+    public User(String username){
+
+        this.username= Objects.requireNonNull(username,"Username is required");
     }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "username",nullable = false,unique = true)
+    private String username;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
