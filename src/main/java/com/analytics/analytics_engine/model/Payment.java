@@ -1,6 +1,8 @@
 package com.analytics.analytics_engine.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
@@ -8,6 +10,7 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "payments")
+@Getter
 public class Payment {
 
     public enum Status {
@@ -26,6 +29,7 @@ public class Payment {
         unique = true,
         updatable = false
     )
+    @Setter
     private Order order;
 
     @Column(
@@ -44,17 +48,21 @@ public class Payment {
         precision = 12,
         scale = 2
     )
+    @Setter
     private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
+    @Setter
     private Status status = Status.SUCCESS;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
+    @Setter
     private Instant createdAt;
 
     @Column(name = "refunded_at")
+    @Setter
     private Instant refundedAt;
 
     public Payment() {
