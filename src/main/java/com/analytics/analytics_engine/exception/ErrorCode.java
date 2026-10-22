@@ -1,0 +1,43 @@
+package com.analytics.analytics_engine.exception;
+
+import org.springframework.http.HttpStatus;
+
+public enum ErrorCode {
+
+    VALIDATION_FAILED(
+            HttpStatus.BAD_REQUEST,
+            "Request validation failed"
+    ),
+    INVALID_REQUEST_BODY(
+            HttpStatus.BAD_REQUEST,
+            "Request body is missing or invalid"
+    ),
+    USERNAME_ALREADY_EXISTS(
+            HttpStatus.CONFLICT,
+            "Username already taken"
+    ),
+    USER_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "User not found"
+    ),
+    INTERNAL_ERROR(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            "An unexpected error occurred"
+    );
+
+    private final HttpStatus httpStatus;
+    private final String message;
+
+    ErrorCode(HttpStatus httpStatus, String message) {
+        this.httpStatus = httpStatus;
+        this.message = message;
+    }
+
+    public HttpStatus getHttpStatus() {
+        return httpStatus;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+}

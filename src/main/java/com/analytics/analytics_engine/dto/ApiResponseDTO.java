@@ -1,22 +1,22 @@
 package com.analytics.analytics_engine.dto;
 
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ApiResponseDTO {
-
-    public ApiResponseDTO(boolean status, String message) {
-        this.status = status;
-        this.message = message;
-    }
-
-    protected ApiResponseDTO(){
-
-    }
-    public String message;
-
-    private boolean status;
+    boolean success;
+    int httpStatus;
+    String errorCode;
+    String message;
+    Map<String, List<String>> fieldErrors;
 }

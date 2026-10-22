@@ -4,11 +4,19 @@ package com.analytics.analytics_engine.exception;
 public class APIException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
+    private final ErrorCode errorCode;
 
-    public APIException() {
+    public APIException(ErrorCode errorCode){
+        this(errorCode,null);
     }
 
-    public APIException(String message) {
-        super(message);
+    public APIException(ErrorCode errorCode,Throwable cause) {
+        super(errorCode.getMessage(),cause);
+        this.errorCode=errorCode;
     }
+
+    public ErrorCode getErrorCode(){
+        return errorCode;
+    }
+
 }
