@@ -7,12 +7,12 @@ import com.analytics.analytics_engine.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-@RestController
+@Controller
 @RequestMapping("/users")
 public class UserController {
 
@@ -24,11 +24,12 @@ public class UserController {
     }
 
 
-    @PostMapping
+
+    @PostMapping("/create-user")
     public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserRequestDTO userRequestDTO){
 
 
-        return new ResponseEntity<>(userService.createUser(userRequestDTO), HttpStatus.CREATED);
+        return new ResponseEntity<>(userService.createUser(userRequestDTO), HttpStatus.OK);
 
     }
 
