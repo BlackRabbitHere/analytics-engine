@@ -14,9 +14,9 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ApiResponseDTO {
-    boolean success;
-    int httpStatus;
-    String errorCode;
-    String message;
-    Map<String, List<String>> fieldErrors;
+    private boolean success;
+    private int httpStatus;
+    private String errorCode;
+    private String message;
+    private Map<String, List<String>> fieldErrors;
 }
