@@ -31,6 +31,10 @@ public enum ErrorCode {
     ORDER_ALREADY_EXISTS(
             HttpStatus.BAD_REQUEST,
             "Order already created"
+    ),
+    LEAD_USER_MISMATCH(
+            HttpStatus.CONFLICT,
+            "Lead and user mismatch"
     );
 
     private final HttpStatus httpStatus;

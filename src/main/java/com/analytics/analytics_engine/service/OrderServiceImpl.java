@@ -11,6 +11,7 @@ import com.analytics.analytics_engine.model.User;
 import com.analytics.analytics_engine.repository.LeadRepository;
 import com.analytics.analytics_engine.repository.OrderRepository;
 import com.analytics.analytics_engine.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -29,6 +30,7 @@ public class OrderServiceImpl implements OrderService{
     }
 
 
+    @Transactional
     @Override
     public OrderResponseDTO createOrder(OrderRequestDTO newOrder) {
         Long userId=newOrder.getUserId();
@@ -44,13 +46,9 @@ public class OrderServiceImpl implements OrderService{
         boolean isLeadIsOfSameUser=lead.getUser().getId().equals(userId);
 
         if(!isLeadIsOfSameUser){
-            throw  new APIException(ErrorCode.VALIDATION_FAILED);
+            throw  new APIException(ErrorCode.LEAD_USER_MISMATCH);
         }
 
-        boolean isAnyOrderAlreadyExistsWithSameLeadAndUserId=orderRepository.existsByUserIdAndLeadId(userId,leadId);
-        if(isAnyOrderAlreadyExistsWithSameLeadAndUserId){
-            throw new APIException(ErrorCode.ORDER_ALREADY_EXISTS);
-        }
 
         Order order=new Order(user,lead,newOrderAmount);
         Order createdOrder=orderRepository.saveAndFlush(order);
