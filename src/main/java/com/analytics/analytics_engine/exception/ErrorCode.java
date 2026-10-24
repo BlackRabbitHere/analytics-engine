@@ -23,6 +23,14 @@ public enum ErrorCode {
     INTERNAL_ERROR(
             HttpStatus.INTERNAL_SERVER_ERROR,
             "An unexpected error occurred"
+    ),
+    LEAD_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "Lead not found"
+    ),
+    ORDER_ALREADY_EXISTS(
+            HttpStatus.BAD_REQUEST,
+            "Order already created"
     );
 
     private final HttpStatus httpStatus;
