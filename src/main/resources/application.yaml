@@ -1,0 +1,26 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: analytics-engine
+  jackson:
+    deserialization:
+      accept-float-as-int: false
+
+  datasource:
+    url: "jdbc:mysql://localhost:3307/analytics_source?connectionTimeZone=UTC"
+    username: analytics_app
+    password: ${LOCAL_SQL_PASSWORD}
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+
+  flyway:
+    enabled: true

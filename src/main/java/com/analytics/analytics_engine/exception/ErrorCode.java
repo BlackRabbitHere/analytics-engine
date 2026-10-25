@@ -35,6 +35,10 @@ public enum ErrorCode {
     LEAD_USER_MISMATCH(
             HttpStatus.CONFLICT,
             "Lead and user mismatch"
+    ),
+    ORDER_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "Order not found"
     );
 
     private final HttpStatus httpStatus;
