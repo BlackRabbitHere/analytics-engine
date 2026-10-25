@@ -1,6 +1,8 @@
 package com.analytics.analytics_engine.service;
 
 
+import com.analytics.analytics_engine.dto.PaymentRefundRequestDTO;
+import com.analytics.analytics_engine.dto.PaymentRefundResponseDTO;
 import com.analytics.analytics_engine.dto.PaymentRequestDTO;
 import com.analytics.analytics_engine.dto.PaymentResponseDTO;
 import com.analytics.analytics_engine.exception.APIException;
@@ -15,6 +17,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -99,5 +102,47 @@ public class PaymentServiceImpl implements PaymentService {
         lead.setStatus(Lead.Status.CONVERTED);
 
         return PaymentResponseDTO.toResponse(completedPayment);
+    }
+
+    @Transactional
+    @Override
+    public PaymentRefundResponseDTO refundPayment(PaymentRefundRequestDTO payment) {
+        Long orderId=payment.getOrderId();
+        String providerReference=payment.getProviderReference();
+
+        if(providerReference==null
+            || providerReference.isBlank()
+            || providerReference.length()>100
+        ){
+            throw new APIException(ErrorCode.VALIDATION_FAILED);
+        }
+
+
+        Order order = orderRepository.findByIdForUpdate(orderId).orElseThrow(
+                ()-> new APIException(ErrorCode.ORDER_NOT_FOUND)
+        );
+
+        Optional<Payment> existingPayment=paymentRepository.findByProviderReferenceForUpdate(providerReference);
+
+        if(existingPayment.isPresent()){
+            boolean isOrderStatusPaid=order.getStatus().equals(Order.Status.PAID);
+            boolean isPaymentStatusSuccess=existingPayment.get().getStatus().equals(Payment.Status.SUCCESS);
+
+            if(!isOrderStatusPaid){
+                throw new APIException(ErrorCode.ORDER_CANNOT_REFUNDED);
+            }
+
+            if(!isPaymentStatusSuccess){
+                throw new APIException(ErrorCode.PAYMENT_CANNOT_REFUNDED);
+            }
+
+            Instant refundedAt=Instant.now();
+            order.refund(refundedAt);
+            existingPayment.get().refund(refundedAt);
+            return PaymentRefundResponseDTO.toResponse(existingPayment.get());
+        }else{
+            throw new APIException(ErrorCode.PROVIDER_REFERENCE_MISMATCH);
+        }
+
     }
 }

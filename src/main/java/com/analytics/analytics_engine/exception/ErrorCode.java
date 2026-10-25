@@ -57,7 +57,16 @@ public enum ErrorCode {
     ORDER_NOT_PAYABLE(
             HttpStatus.CONFLICT,
             "Only a pending order can receive a new payment"
-    );
+    ),
+    ORDER_CANNOT_REFUNDED(
+            HttpStatus.CONFLICT,
+            "Only a paid order can receive a refund"
+    ),
+    PAYMENT_CANNOT_REFUNDED(
+            HttpStatus.CONFLICT,
+            "Only a success payment can be refunded"
+    )
+    ;
 
     private final HttpStatus httpStatus;
     private final String message;
