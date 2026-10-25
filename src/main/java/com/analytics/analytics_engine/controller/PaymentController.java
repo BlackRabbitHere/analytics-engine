@@ -24,6 +24,6 @@ public class PaymentController {
 
     @PostMapping("/callback")
     public ResponseEntity<PaymentResponseDTO>completePayment(@Valid @RequestBody PaymentRequestDTO paymentRequestDTO){
-        return new ResponseEntity<>(paymentService.completePayment(paymentRequestDTO),HttpStatus.CREATED);
+        return new ResponseEntity<>(paymentService.completePayment(paymentRequestDTO),HttpStatus.OK);
     }
 }

@@ -43,7 +43,21 @@ public enum ErrorCode {
     PROVIDER_REFERENCE_MISMATCH(
             HttpStatus.CONFLICT,
             "Provider Reference Mismatch"
-            );
+            ),
+    PAYMENT_CONFLICT(
+            HttpStatus.CONFLICT,
+            "Payment reference or order conflicts with an existing payment"
+    ),
+
+    PAYMENT_AMOUNT_MISMATCH(
+            HttpStatus.BAD_REQUEST,
+            "Payment amount does not match the order amount"
+    ),
+
+    ORDER_NOT_PAYABLE(
+            HttpStatus.CONFLICT,
+            "Only a pending order can receive a new payment"
+    );
 
     private final HttpStatus httpStatus;
     private final String message;

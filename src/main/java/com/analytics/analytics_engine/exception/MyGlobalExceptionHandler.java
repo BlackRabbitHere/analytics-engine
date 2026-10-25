@@ -1,6 +1,8 @@
 package com.analytics.analytics_engine.exception;
 
 import com.analytics.analytics_engine.dto.ApiResponseDTO;
+import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -139,5 +141,39 @@ public class MyGlobalExceptionHandler
                 error.getMessage(),
                 fieldErrors
         );
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Object> handleDataIntegrityViolation(
+            DataIntegrityViolationException ex
+    ) {
+        Throwable cause = ex;
+
+        while (cause != null) {
+            if (cause instanceof ConstraintViolationException violation) {
+                String constraintName = violation.getConstraintName();
+
+                if (constraintName != null) {
+                    // MySQL may qualify the name with a table name.
+                    String name = constraintName.substring(
+                            constraintName.lastIndexOf('.') + 1
+                    );
+
+                    if ("uc_payments_provider_reference".equals(name)
+                            || "uc_payments_order".equals(name)) {
+                        return handleAPIException(
+                                new APIException(
+                                        ErrorCode.PAYMENT_CONFLICT,
+                                        ex
+                                )
+                        );
+                    }
+                }
+            }
+
+            cause = cause.getCause();
+        }
+
+        return handleUnexpectedException(ex);
     }
 }

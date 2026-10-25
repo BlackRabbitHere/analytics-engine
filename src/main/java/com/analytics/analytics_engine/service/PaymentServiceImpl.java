@@ -33,42 +33,71 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Transactional
     @Override
-    public PaymentResponseDTO completePayment(PaymentRequestDTO payment) {
+    public PaymentResponseDTO completePayment(PaymentRequestDTO request) {
+        Long orderId = request.getOrderId();
+        String reference = request.getProviderReference();
+        BigDecimal amount = request.getPaymentAmount();
 
-        Long orderId=payment.getOrderId();
-        String providerReference=payment.getProviderReference()
-                .strip()
-                .toLowerCase(Locale.ROOT)
-                .replaceAll("^_|_$", "");
-        BigDecimal paymentAmount=payment.getPaymentAmount();
-
-        Optional<Payment> existingPayment=paymentRepository.findByOrder_Id(orderId);
-        if(existingPayment.isPresent()){
-            if(providerReference.equals(existingPayment.get().getProviderReference())) {
-                return PaymentResponseDTO.toResponse(existingPayment.get());
-            }else {
-                throw  new APIException(ErrorCode.PROVIDER_REFERENCE_MISMATCH);
-            }
-        }
-
-        if(providerReference.isBlank() || providerReference.length() > 100){
+        if (reference == null
+                || reference.isBlank()
+                || reference.length() > 100
+                || amount == null
+                || amount.signum() <= 0) {
             throw new APIException(ErrorCode.VALIDATION_FAILED);
         }
 
-        Order order=orderRepository.findById(orderId).orElseThrow(
-                ()->new APIException(ErrorCode.ORDER_NOT_FOUND)
+        // First database operation: acquire the order lock.
+        Order order = orderRepository.findByIdForUpdate(orderId)
+                .orElseThrow(() -> new APIException(
+                        ErrorCode.ORDER_NOT_FOUND
+                ));
+
+        // A reference identifies one particular payment.
+        Optional<Payment> paymentWithReference =
+                paymentRepository.findByProviderReference(reference);
+
+        if (paymentWithReference.isPresent()) {
+            Payment existing = paymentWithReference.get();
+
+            boolean sameOrder =
+                    existing.getOrder().getId().equals(orderId);
+
+            boolean sameReference =
+                    existing.getProviderReference().equals(reference);
+
+            boolean sameAmount =
+                    existing.getAmount().compareTo(amount) == 0;
+
+            if (!sameOrder || !sameReference || !sameAmount) {
+                throw new APIException(ErrorCode.PAYMENT_CONFLICT);
+            }
+
+            // Includes an identical replay after a refund.
+            return PaymentResponseDTO.toResponse(existing);
+        }
+
+        // This order cannot receive a second payment reference.
+        if (paymentRepository.findByOrder_Id(orderId).isPresent()) {
+            throw new APIException(ErrorCode.PAYMENT_CONFLICT);
+        }
+
+        if (order.getStatus() != Order.Status.PENDING) {
+            throw new APIException(ErrorCode.ORDER_NOT_PAYABLE);
+        }
+
+        if (order.getAmount().compareTo(amount) != 0) {
+            throw new APIException(ErrorCode.PAYMENT_AMOUNT_MISMATCH);
+        }
+
+        Payment completedPayment = paymentRepository.saveAndFlush(
+                new Payment(order, reference, amount)
         );
 
-
-        Payment completePayment=new Payment(order,providerReference,paymentAmount);
-
-        Payment completedPayment=paymentRepository.saveAndFlush(completePayment);
         order.markPaid(completedPayment.getCreatedAt());
-        Order updatedOrder=orderRepository.saveAndFlush(order);
-        Long leadId=updatedOrder.getLead().getId();
-        Lead lead=leadRepository.findById(leadId).orElseThrow();
+
+        Lead lead = order.getLead();
         lead.setStatus(Lead.Status.CONVERTED);
-        leadRepository.saveAndFlush(lead);
+
         return PaymentResponseDTO.toResponse(completedPayment);
     }
 }
