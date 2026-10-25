@@ -124,7 +124,17 @@ public class PaymentServiceImpl implements PaymentService {
 
         Optional<Payment> existingPayment=paymentRepository.findByProviderReferenceForUpdate(providerReference);
 
+
         if(existingPayment.isPresent()){
+            boolean isOrderIdAndProviderReferenceOfSamePayment=existingPayment.get().getOrder().getId().equals(orderId);
+            if(!isOrderIdAndProviderReferenceOfSamePayment){
+                throw new APIException(ErrorCode.ORDER_ID_MISMATCH);
+            }
+
+            if(existingPayment.get().getStatus().equals(Payment.Status.REFUNDED) && existingPayment.get().getOrder().getStatus().equals(Order.Status.REFUNDED)){
+                return PaymentRefundResponseDTO.toResponse(existingPayment.get());
+            }
+
             boolean isOrderStatusPaid=order.getStatus().equals(Order.Status.PAID);
             boolean isPaymentStatusSuccess=existingPayment.get().getStatus().equals(Payment.Status.SUCCESS);
 

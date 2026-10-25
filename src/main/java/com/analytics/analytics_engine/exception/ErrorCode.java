@@ -65,8 +65,10 @@ public enum ErrorCode {
     PAYMENT_CANNOT_REFUNDED(
             HttpStatus.CONFLICT,
             "Only a success payment can be refunded"
-    )
-    ;
+    ),
+    ORDER_ID_MISMATCH(
+            HttpStatus.CONFLICT,
+            "Order Id and provider Reference mismatch found ");
 
     private final HttpStatus httpStatus;
     private final String message;
