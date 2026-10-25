@@ -39,7 +39,11 @@ public enum ErrorCode {
     ORDER_NOT_FOUND(
             HttpStatus.NOT_FOUND,
             "Order not found"
-    );
+    ),
+    PROVIDER_REFERENCE_MISMATCH(
+            HttpStatus.CONFLICT,
+            "Provider Reference Mismatch"
+            );
 
     private final HttpStatus httpStatus;
     private final String message;

@@ -34,6 +34,8 @@ public class PaymentResponseDTO {
 
     private Instant refundedAt;
 
+    private String orderStatus;
+
     public static PaymentResponseDTO toResponse(Payment payment){
         return new PaymentResponseDTO(
                 payment.getId(),
@@ -42,7 +44,8 @@ public class PaymentResponseDTO {
                 payment.getAmount(),
                 payment.getStatus().toString(),
                 payment.getCreatedAt(),
-                payment.getRefundedAt()
+                payment.getRefundedAt(),
+                payment.getOrder().getStatus().toString()
         );
     }
 }
