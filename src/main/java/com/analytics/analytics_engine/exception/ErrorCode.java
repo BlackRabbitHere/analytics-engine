@@ -68,7 +68,16 @@ public enum ErrorCode {
     ),
     ORDER_ID_MISMATCH(
             HttpStatus.CONFLICT,
-            "Order Id and provider Reference mismatch found ");
+            "Order Id and provider Reference mismatch found "),
+    PRODUCT_DUPLICATE_SKU(
+            HttpStatus.CONFLICT,
+            "Duplicate product sku code found"
+    ),
+    PRODUCT_CONFLICT(
+            HttpStatus.CONFLICT,
+            "Conflicts in same product sku's"
+    )
+    ;
 
     private final HttpStatus httpStatus;
     private final String message;
