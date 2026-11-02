@@ -23,14 +23,16 @@ public class OrderServiceImpl implements OrderService{
     private final LeadRepository leadRepository;
     private final ProductRepository productRepository;
     private final OrderItemRepository orderItemRepository;
+    private final UserActivityService userActivityService;
 
 
-    public OrderServiceImpl(OrderRepository orderRepository, UserRepository userRepository, LeadRepository leadRepository, ProductRepository productRepository, OrderItemRepository orderItemRepository) {
+    public OrderServiceImpl(OrderRepository orderRepository, UserRepository userRepository, LeadRepository leadRepository, ProductRepository productRepository, OrderItemRepository orderItemRepository, UserActivityService userActivityService) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.leadRepository = leadRepository;
         this.productRepository = productRepository;
         this.orderItemRepository = orderItemRepository;
+        this.userActivityService = userActivityService;
     }
 
 
@@ -81,6 +83,15 @@ public class OrderServiceImpl implements OrderService{
         }
 
         List<OrderItem> savedItems=orderItemRepository.saveAllAndFlush(items);
+
+        userActivityService.recordServerEvent(
+                UserActivity.EventType.ORDER_CREATED,
+                createdOrder.getUser(),
+                createdOrder.getLead(),
+                createdOrder,
+                null,
+                createdOrder.getCreatedAt()
+        );
 
         List<OrderItemResponseDTO> savedOrderItems=savedItems.stream()
                 .map(OrderItemResponseDTO::toResponse)

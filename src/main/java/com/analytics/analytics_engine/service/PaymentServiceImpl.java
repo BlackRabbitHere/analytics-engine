@@ -10,6 +10,7 @@ import com.analytics.analytics_engine.exception.ErrorCode;
 import com.analytics.analytics_engine.model.Lead;
 import com.analytics.analytics_engine.model.Order;
 import com.analytics.analytics_engine.model.Payment;
+import com.analytics.analytics_engine.model.UserActivity;
 import com.analytics.analytics_engine.repository.LeadRepository;
 import com.analytics.analytics_engine.repository.OrderRepository;
 import com.analytics.analytics_engine.repository.PaymentRepository;
@@ -18,7 +19,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Locale;
 import java.util.Optional;
 
 @Service
@@ -26,11 +26,13 @@ public class PaymentServiceImpl implements PaymentService {
     private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
     private final LeadRepository leadRepository;
+    private final UserActivityService userActivityService;
 
-    public PaymentServiceImpl(OrderRepository orderRepository, PaymentRepository paymentRepository, LeadRepository leadRepository) {
+    public PaymentServiceImpl(OrderRepository orderRepository, PaymentRepository paymentRepository, LeadRepository leadRepository, UserActivityService userActivityService) {
         this.orderRepository = orderRepository;
         this.paymentRepository = paymentRepository;
         this.leadRepository = leadRepository;
+        this.userActivityService = userActivityService;
     }
 
 
@@ -101,6 +103,15 @@ public class PaymentServiceImpl implements PaymentService {
         Lead lead = order.getLead();
         lead.setStatus(Lead.Status.CONVERTED);
 
+        userActivityService.recordServerEvent(
+                UserActivity.EventType.PAYMENT_SUCCEEDED,
+                order.getUser(),
+                lead,
+                order,
+                completedPayment,
+                completedPayment.getCreatedAt()
+        );
+
         return PaymentResponseDTO.toResponse(completedPayment);
     }
 
@@ -149,6 +160,15 @@ public class PaymentServiceImpl implements PaymentService {
             Instant refundedAt=Instant.now();
             order.refund(refundedAt);
             existingPayment.get().refund(refundedAt);
+
+            userActivityService.recordServerEvent(
+                    UserActivity.EventType.PAYMENT_REFUNDED,
+                    order.getUser(),
+                    order.getLead(),
+                    order,
+                    existingPayment.get(),
+                    refundedAt
+            );
             return PaymentRefundResponseDTO.toResponse(existingPayment.get());
         }else{
             throw new APIException(ErrorCode.PROVIDER_REFERENCE_MISMATCH);
