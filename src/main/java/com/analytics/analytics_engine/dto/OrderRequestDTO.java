@@ -1,6 +1,8 @@
 package com.analytics.analytics_engine.dto;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
@@ -9,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 
 @Getter
@@ -25,8 +28,7 @@ public class OrderRequestDTO {
     @Positive(message = "Lead Id cannot be negative")
     private Long leadId;
 
-    @NotNull(message = "Order amount is required")
-    @Positive(message = "Order Amount cannot be negative")
-    @Digits(integer = 10,fraction = 2,message = "Amount can have upto 10 digits and 2 fraction digits")
-    private BigDecimal orderAmount;
+    @NotEmpty(message = "At least one order item is required")
+    @Valid
+    private List<@NotNull OrderItemRequestDTO> items;
 }

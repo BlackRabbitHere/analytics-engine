@@ -76,8 +76,9 @@ public enum ErrorCode {
     PRODUCT_CONFLICT(
             HttpStatus.CONFLICT,
             "Conflicts in same product sku's"
-    )
-    ;
+    ),
+    PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND,
+            "Product not found");
 
     private final HttpStatus httpStatus;
     private final String message;

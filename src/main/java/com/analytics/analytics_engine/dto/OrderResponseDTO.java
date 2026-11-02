@@ -1,6 +1,7 @@
 package com.analytics.analytics_engine.dto;
 
 import com.analytics.analytics_engine.model.Order;
+import com.analytics.analytics_engine.model.OrderItem;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 
 @Getter
@@ -32,7 +34,9 @@ public class OrderResponseDTO {
 
     private Instant refundedAt;
 
-    public static OrderResponseDTO toResponse(Order order){
+    private List<OrderItemResponseDTO> items;
+
+    public static OrderResponseDTO toResponse(Order order, List<OrderItemResponseDTO>orderItems){
         return new OrderResponseDTO(
                 order.getId(),
                 order.getUser().getId(),
@@ -42,6 +46,7 @@ public class OrderResponseDTO {
                 order.getCreatedAt(),
                 order.getUpdatedAt(),
                 order.getPaidAt(),
-                order.getRefundedAt());
+                order.getRefundedAt(),
+                orderItems);
     }
 }
