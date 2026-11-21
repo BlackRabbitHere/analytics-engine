@@ -1,0 +1,33 @@
+spring:
+  cache:
+    type: redis
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+  config:
+    import: "optional:file:./.env[.properties]"
+  main:
+    web-application-type: none
+  datasource:
+    url: "jdbc:mysql://localhost:3308/analytics_lab?connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true&rewriteBatchedStatements=true"
+    username: analytics_lab_app
+    password: "${LAB_SQL_PASSWORD:${LOCAL_SQL_PASSWORD}}"
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+
+lab:
+  seed:
+    enabled: false
+    size: small
+    random-seed: 42
+    start: "2026-05-01T00:00:00Z"
+    end: "2026-11-01T00:00:00Z"
+    batch-size: 1000

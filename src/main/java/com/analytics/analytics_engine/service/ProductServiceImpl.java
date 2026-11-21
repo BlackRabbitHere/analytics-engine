@@ -49,4 +49,12 @@ public class ProductServiceImpl implements ProductService{
 
         return ProductResponseDTO.toResponse(savedProduct);
     }
+
+    @Override
+    public ProductResponseDTO getProductByProductId(Long productId) {
+        Product product=productRepository.getProductById(productId)
+                .orElseThrow(()->new APIException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        return ProductResponseDTO.toResponse(product);
+    }
 }

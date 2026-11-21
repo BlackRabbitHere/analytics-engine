@@ -99,4 +99,16 @@ public class OrderServiceImpl implements OrderService{
 
         return OrderResponseDTO.toResponse(createdOrder,savedOrderItems);
     }
+
+    @Override
+    public OrderResponseDTO getOrderByOrderId(Long orderId) {
+        Order order= orderRepository.getOrderById(orderId)
+                .orElseThrow(()-> new APIException(
+                ErrorCode.ORDER_NOT_FOUND));
+        List<OrderItem>orderItems=orderItemRepository.findByOrder_IdOrderByIdAsc(orderId);
+        List<OrderItemResponseDTO>orderItemResponseDTOS=orderItems.stream()
+                .map(OrderItemResponseDTO::toResponse)
+                .toList();
+        return OrderResponseDTO.toResponse(order,orderItemResponseDTOS);
+    }
 }
