@@ -5,6 +5,7 @@ import com.analytics.analytics_engine.exception.APIException;
 import com.analytics.analytics_engine.exception.ErrorCode;
 import com.analytics.analytics_engine.model.UserActivity.EventType;
 import com.analytics.analytics_engine.repository.UserActivityRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +25,10 @@ public class UserActivityQueryService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(
+            cacheNames = "activity-summary",
+            key = "#p0.toString() + ':' + #p1.toString() + ':' + #p2.toString()"
+    )
     public UserActivitySummaryDTO getSummary(long userId, LocalDate from, LocalDate to) {
         if (userId <= 0 || !from.isBefore(to)) {
             throw new APIException(ErrorCode.VALIDATION_FAILED);
