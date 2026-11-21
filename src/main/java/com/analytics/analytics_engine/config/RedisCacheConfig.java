@@ -1,5 +1,6 @@
 package com.analytics.analytics_engine.config;
 
+import com.analytics.analytics_engine.dto.ProductResponseDTO;
 import com.analytics.analytics_engine.dto.UserActivitySummaryDTO;
 
 import org.springframework.boot.cache.autoconfigure.RedisCacheManagerBuilderCustomizer;
@@ -54,5 +55,30 @@ public class RedisCacheConfig {
                 "activity-summary",
                 cacheConfig
         );
+    }
+
+    @Bean
+    RedisCacheManagerBuilderCustomizer productViewCacheCustomizer(
+            JsonMapper jsonMapper
+    ){
+        var serializer=new JacksonJsonRedisSerializer<>(
+                jsonMapper,
+                ProductResponseDTO.class
+        );
+
+
+        var cacheConfig=RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofMinutes(5))
+                .disableCachingNullValues()
+                .serializeValuesWith(
+                        RedisSerializationContext.SerializationPair
+                                .fromSerializer(serializer)
+                );
+
+        return builder -> builder.withCacheConfiguration(
+                "product-view",
+                cacheConfig
+        );
+
     }
 }

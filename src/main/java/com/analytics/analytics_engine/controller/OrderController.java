@@ -7,10 +7,7 @@ import com.analytics.analytics_engine.service.OrderService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -26,5 +23,10 @@ public class OrderController {
     public ResponseEntity<OrderResponseDTO> createOrder(@Valid @RequestBody OrderRequestDTO newOrder){
 
         return new ResponseEntity<>(orderService.createOrder(newOrder), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{orderId}")
+    public ResponseEntity<OrderResponseDTO> getOrder(@PathVariable @Valid Long orderId){
+        return new ResponseEntity<>(orderService.getOrderByOrderId(orderId),HttpStatus.OK);
     }
 }

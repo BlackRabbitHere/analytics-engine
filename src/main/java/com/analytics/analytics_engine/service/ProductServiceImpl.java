@@ -6,6 +6,7 @@ import com.analytics.analytics_engine.exception.APIException;
 import com.analytics.analytics_engine.exception.ErrorCode;
 import com.analytics.analytics_engine.model.Product;
 import com.analytics.analytics_engine.repository.ProductRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -48,5 +49,17 @@ public class ProductServiceImpl implements ProductService{
 
 
         return ProductResponseDTO.toResponse(savedProduct);
+    }
+
+    @Override
+    @Cacheable(
+            cacheNames = "product-view",
+            key = "#p0.toString()"
+    )
+    public ProductResponseDTO getProductByProductId(Long productId) {
+        Product product=productRepository.getProductById(productId)
+                .orElseThrow(()->new APIException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        return ProductResponseDTO.toResponse(product);
     }
 }
